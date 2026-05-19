@@ -1,0 +1,7 @@
+assets      resource files, like images to be used for the ghost
+build       build tools and binaries
+doc         documentation
+include     header files (.h)
+external    EXTERNAL libraries (sdl goes here)
+src         implementation files (.cpp)
+tools       small scripts and other handy things

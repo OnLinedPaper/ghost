@@ -1,0 +1,4 @@
+[ ] get configuration for c++17
+[ ] get sdl linked
+
+[ ] open sdl window

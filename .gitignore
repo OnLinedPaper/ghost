@@ -1,0 +1,13 @@
+# build stuff
+build
+*.dll
+
+# external libs
+external/*
+
+# vim stuff
+*.swp
+Session.vim
+
+# executables
+*.exe
