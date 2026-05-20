@@ -8,30 +8,26 @@ with it.
 - go to https://www.msys2.org/
 - get the x86_64 installer (msys2-x86_64-YYYYMMDD.txt)
 - run the installer, leave all settings as default
-- launch "MSYS2 UCRT64" terminal, if it doesn't open automatically
+- launch "MSYS2 UCRT64" terminal, if it doesn't open automatically. you may want to pin this to the taskbar, it will close and reopen a few times!
 
 install the compiler into the terminal, and run these commands, one at a time. some 
 of these commands will ask you to close and reopen the terminal once they're done 
 running.
-- pacman -Suy  # updates the rest of the things we will install
-- pacman -S mingw-w64-ucrt-x86_64-gcc  # installs the compiler
-- pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja  # installs the builder
-- pacman -S git  # installs the verson control system
+- pacman -Suy  # updates the rest of the things we will install. this will restart the terminal, so be sure you know how to reopen it.
+- pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja git  # installs the required tools
 - export PATH="$PATH:/c/msys64/mingw64/bin/"  # tell the terminal where to find the software we installed
 
 download the code for ghost, and the libraries it needs to run
 - git clone https://github.com/OnLinedPaper/ghost.git  # gets the ghost program's source code
-- wget https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.8.tar.gz  # gets the source code of a library we need
-- tar -xzvf release-3.4.8.tar.gz  # unpacks the library's source code
-- cd SDL-release-3.4.8  # prepare to compile the library
+- cd ghost/external && wget https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.8.tar.gz  # gets the source code of a library we need and put it into the folder where we need it
+- tar -xzvf release-3.4.8.tar.gz && cd SDL-release-3.4.8  # unpacks the library's source code and prepares to compile it
 
 compile the libraries ghost needs to run. this segment is taken 
 from https://wiki.libsdl.org/SDL3/README-windows and can be followed there, if you prefer!
 - mkdir build  # prepares a place to build the library
 - cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-x86_64.cmake  # prepares to build the library
 - cmake --build build --parallel  # builds the library
-- cmake --install build --prefix ..  # installs the library to ghost
-- cd ../..  # prepare to compile ghost
+- cmake --install build --prefix .. && cd ../..  # installs the library to ghost
 
 compile the ghost program and run it!
 - rm -rf build/ && cmake -DCMAKE_PREFIX_PATH=./external/lib/cmake/SDL3/ -B build  # prepares to build ghost
