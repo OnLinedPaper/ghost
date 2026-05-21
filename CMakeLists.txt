@@ -42,6 +42,11 @@ find_package(SDL3 REQUIRED)
 
 add_compile_options(-Wall -Wextra -Wpedantic -O0 -g)
 
+# on windows only - dont show a cmd on startup
+IF (WIN32)
+  add_link_options(-Wl,-subsystem,windows)
+ENDIF()
+
 # main program and name of binary that gets built
 add_executable(ghost)
 target_sources(ghost

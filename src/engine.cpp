@@ -2,29 +2,31 @@
 #include <string>
 #include <iostream>
 #include <SDL3/SDL.h>
-//#include <SDL3/SDL_Main.h>
 
 int engine::play() {
   if(SDL_Init(SDL_INIT_VIDEO) == false) { 
     std::cerr << SDL_GetError() << std::endl; 
     return -1; 
   }
-  SDL_Window *w{SDL_CreateWindow("test window", 400, 400, 400)};
+  SDL_Window *w{SDL_CreateWindow("test window", 400, 400, SDL_WINDOW_TRANSPARENT)};
   if(w == nullptr) {
     std::cerr << SDL_GetError() << std::endl; 
     return -1; 
   }
-  SDL_SetWindowBordered(w, true);
+  SDL_SetWindowBordered(w, false);
   SDL_SetWindowMouseGrab(w, false);
+  SDL_SetWindowAlwaysOnTop(w, true);
+  //SDL_SetWindowFocusable(w, false);
   SDL_Surface *s = SDL_GetWindowSurface(w);
 
   const bool *keystate = SDL_GetKeyboardState(NULL);
   bool quit = false;
   SDL_Event e;
   SDL_zero(e);
-  int red = 0xAA;
-  int green = 0xAA;
-  int blue = 0xFF;
+  int red = 0x00;
+  int green = 0x00;
+  int blue = 0x00;
+  int alpha = 0x00;
   while(!quit) {
     //handle SDL events
     while(SDL_PollEvent(&e)) {
@@ -41,12 +43,18 @@ int engine::play() {
       else if(e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
         green = 0xAA;
       }
+      else if(e.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+        red = 0xFF; green = 0xFF; blue = 0xFF; alpha = 0xFF;
+      }
+      else if(e.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
+        red = 0; green = 0; blue = 0; alpha = 0;
+      }
     }
     //handle key events
     SDL_PumpEvents();
     if(keystate[SDL_SCANCODE_ESCAPE]) { quit = true; }
 
-    SDL_FillSurfaceRect(s, nullptr, SDL_MapSurfaceRGB(s, red, green, blue));
+    SDL_FillSurfaceRect(s, nullptr, SDL_MapSurfaceRGBA(s, red, green, blue, alpha));
     SDL_UpdateWindowSurface(w);
 
     //blue += 10;
