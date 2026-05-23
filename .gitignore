@@ -1,13 +1,17 @@
-# build stuff
+# build
 build
 *.dll
 
 # external libs
 external/*
 
-# vim stuff
+# vim
 *.swp
 Session.vim
 
 # executables
 *.exe
+
+# installer
+.bootstrap.skipwelcome
+ghost_installation.log

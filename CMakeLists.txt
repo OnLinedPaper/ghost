@@ -34,8 +34,8 @@ set(
   "."
 )
 
-#TODO: check this later
-set(SDL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake/SDL3/)
+#TODO: check this later -> doesn't seem important...
+#set(SDL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake/SDL3/)
 
 # get sdl
 find_package(SDL3 REQUIRED)
@@ -46,6 +46,8 @@ add_compile_options(-Wall -Wextra -Wpedantic -O0 -g)
 IF (WIN32)
   add_link_options(-Wl,-subsystem,windows)
 ENDIF()
+
+
 
 # main program and name of binary that gets built
 add_executable(ghost)
@@ -70,16 +72,12 @@ endif()
 
 #---- internal libs -----------------------------------------------------------
 
-# indicate the main binary (ghost) has a dependency to main engine
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# top-level project
 target_link_libraries(ghost PRIVATE engine)
+target_link_libraries(ghost PRIVATE window)
 
-#get_directory_property(output INCLUDE_DIRECTORIES)
-#message(WARNING "dirs: ${output}")
-#get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-#foreach(dir ${dirs})
-#  message(STATUS "dir='${dir}'")
-#endforeach()
-
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 # main engine loop
 add_library(engine)
 target_sources(engine
@@ -99,27 +97,55 @@ target_sources(engine
       include/engine.h
 )
 
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# window manager
+add_library(window)
+target_sources(window
+  PRIVATE
+    src/window.cpp
+
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS
+      include
+    FILES
+      include/window.h
+)
+
 #---- external libs -----------------------------------------------------------
 
-#link SDL libs to engine
-#target_include_directories(engine PRIVATE lib/SDL-release-3.4.8/include)
-#add_subdirectory (lib/SDL-release-3.4.8)
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# include SDL libs for the subcomponents which need them
 target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
-target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake)
-target_link_libraries(engine PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(engine PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib)
+target_include_directories(window PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
+
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# link SDL at the top level to ghost as a whole
+target_link_libraries(ghost PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib)
 if (WIN32)
-  target_link_libraries(engine PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib/SDL3main)
+  target_link_libraries(ghost PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib/SDL3main)
 endif()
 find_library(SDL3
   NAMES sdl3
   HINTS "./external/lib"
 )
-target_link_libraries(engine PRIVATE -lmingw32)
-target_link_libraries(engine PRIVATE SDL3)
+target_link_libraries(ghost PRIVATE SDL3)
+
+
+
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+#TODO: old stuff i'm not getting rid of until i'm SURE i don't need it anymore
+#target_include_directories(engine PRIVATE lib/SDL-release-3.4.8/include)
+#add_subdirectory (lib/SDL-release-3.4.8)
+#target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake)
+#target_link_libraries(engine PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/include)
+#target_link_libraries(ghost PRIVATE -lmingw32)
+
 
 #---- move libs where they can be found ---------------------------------------
 
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+#TODO: old stuff i'm not getting rid of until i'm SURE i don't need it anymore
 #add_custom_command(
  # TARGET engine POST_BUILD COMMAND
   #${CMAKE_COMMAND} -E copy_if_different

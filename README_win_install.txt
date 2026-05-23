@@ -20,7 +20,7 @@ running.
 
 download the code for ghost, and the libraries it needs to run.
 - git clone https://github.com/OnLinedPaper/ghost.git  # gets the ghost program's source code.
-- cd ghost/external && wget https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.8.tar.gz  # gets the source code of a library we need and put it into the folder where we need it.
+- cd ghost/external && wget https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.8.tar.gz && wget https://github.com/libsdl-org/SDL_image/archive/refs/tags/release-3.4.4.tar.gz  # gets the source code of a library we need and put it into the folder where we need it.
 - tar -xzvf release-3.4.8.tar.gz && cd SDL-release-3.4.8  # unpacks the library's source code and prepares to compile it.
 
 compile the libraries ghost needs to run. this segment is taken 
@@ -29,6 +29,12 @@ from https://wiki.libsdl.org/SDL3/README-windows and can be followed there, if y
 - cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-x86_64.cmake  # prepares to build the library.
 - cmake --build build --parallel  # builds the library.
 - cmake --install build --prefix .. && cd ../..  # installs the library to ghost.
+
+- cd external/SDL-release-3.4.8
+- mkdir build
+- cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-x86_64.cmake -DCMAKE_PREFIX_PATH=../lib/cmake/SDL3/
+- cmake --build build --parallel
+- cmake --install build --prefix .. && cd ../..
 
 compile the ghost program and run it!
 - rm -rf build/ && cmake -DCMAKE_PREFIX_PATH=./external/lib/cmake/SDL3/ -B build  # prepares to build ghost.

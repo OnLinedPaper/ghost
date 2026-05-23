@@ -5,14 +5,14 @@ class engine {
 
 public:
   engine();
-  engine(const engine&) = delete;
-  engine &operator=(const engine &) = delete;
-  ~engine();
+ ~engine();
 
   int play();
 
 private:
-
+  engine(const engine&) = delete;
+  engine &operator=(const engine &) = delete;
+ 
 };
 
 #endif
