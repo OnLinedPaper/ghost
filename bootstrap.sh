@@ -31,7 +31,8 @@ function print_welcome() {
   echo "(I will eventually make a standalone"
   echo "ghost.exe, but for now, this is all I"
   echo "can do... Windows programming is"
-  echo "tricky. Thank you for your support!"
+  echo "tricky.)"
+  echo "Thank you for your support!"
   echo ""
   touch .bootstrap.skipwelcome
 }
@@ -41,7 +42,7 @@ function print_welcome() {
 
 function update_pacman() {
   echo ""
-  echo -n "updating pacman... "
+  echo -n "updating pacman (this step might close the terminal)... "
   pacman -Suy -q --noconfirm >>${logfile} 2>&1
   echo "done"
 }
