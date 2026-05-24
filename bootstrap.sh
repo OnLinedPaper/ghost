@@ -25,7 +25,7 @@ function print_welcome() {
   echo "taskbar - it will close a few times, and"
   echo "you will need to reopen it manually."
   echo ""
-  echo "The installation will take about 20-30"
+  echo "The installation will take about 10-15"
   echo "minutes as the code and its supporting"
   echo "libraries are downloaded and compiled."
   echo "(I will eventually make a standalone"
