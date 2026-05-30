@@ -159,7 +159,7 @@ function build_ghost() {
   cd ghost
 
   echo -n "- config.... "
-  `cmake -DCMAKE_PREFIX_PATH=./external/lib/cmake/SDL3/ -B build` >>${logfile} 2>&1
+  `cmake -B build` >>${logfile} 2>&1
   echo "done"
 
   echo -n "- compile... "
@@ -168,6 +168,7 @@ function build_ghost() {
 
   echo -n "- install... "
   cp external/bin/SDL3.dll .
+  cp external/bin/SDL3_image.dll .
   echo "done"
   cd ..
 }

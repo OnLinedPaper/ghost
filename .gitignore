@@ -1,6 +1,8 @@
 # build
 build
 *.dll
+CMakeCache.txt
+CMakeFiles/
 
 # external libs
 external/*
@@ -14,4 +16,4 @@ Session.vim
 
 # installer
 .bootstrap.skipwelcome
-ghost_installation.log
+.ghost_installer.log

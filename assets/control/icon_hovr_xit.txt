@@ -1,0 +1,6 @@
+./assets/icon/icon_hovr_xit.png
+icon_hovr_xit
+32
+32
+1
+0

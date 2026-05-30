@@ -10,45 +10,9 @@ with it.
 - run the installer, leave all settings as default.
 - launch "MSYS2 UCRT64" terminal, if it doesn't open automatically. you may want to pin this to the taskbar, it will close and reopen a few times!
 
-install the compiler into the terminal, and run these commands, one at a time. some 
-of these commands will ask you to close and reopen the terminal once they're done 
-running.
-- pacman -Suy  # updates the rest of the things we will install. this will restart the terminal, so be sure you know how to reopen it.
-- pacman -Suy  # same command as before. needs to be run several times in a row, until it says "there is nothing to do". probably will take two tries at most.
-- pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja git  # installs the required tools.
-- export PATH="$PATH:/c/msys64/mingw64/bin/"  # tell the terminal where to find the software we installed.
+in the terminal, run the following command to download the installer:
+TODO: update this after merging to main
+wget https://raw.githubusercontent.com/OnLinedPaper/ghost/refs/heads/window_mechanics/bootstrap.sh
 
-download the code for ghost, and the libraries it needs to run.
-- git clone https://github.com/OnLinedPaper/ghost.git  # gets the ghost program's source code.
-- cd ghost/external && wget https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.8.tar.gz && wget https://github.com/libsdl-org/SDL_image/archive/refs/tags/release-3.4.4.tar.gz  # gets the source code of a library we need and put it into the folder where we need it.
-- tar -xzvf release-3.4.8.tar.gz && cd SDL-release-3.4.8  # unpacks the library's source code and prepares to compile it.
-
-compile the libraries ghost needs to run. this segment is taken 
-from https://wiki.libsdl.org/SDL3/README-windows and can be followed there, if you prefer!
-- mkdir build  # prepares a place to build the library.
-- cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-x86_64.cmake  # prepares to build the library.
-- cmake --build build --parallel  # builds the library.
-- cmake --install build --prefix .. && cd ../..  # installs the library to ghost.
-
-- cd external/SDL-release-3.4.8
-- mkdir build
-- cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-x86_64.cmake -DCMAKE_PREFIX_PATH=../lib/cmake/SDL3/
-- cmake --build build --parallel
-- cmake --install build --prefix .. && cd ../..
-
-compile the ghost program and run it!
-- rm -rf build/ && cmake -DCMAKE_PREFIX_PATH=./external/lib/cmake/SDL3/ -B build  # prepares to build ghost.
-- cmake --build build  # builds ghost.
-- cp external/bin/SDL3.dll .  # adds the library ghosts needs.
-- start build/ghost.exe  # runs ghost!
-
-OPTIONAL: move ghost to your desktop - WORK IN PROGRESS! ghost can be moved without 
-issue, but if MSYS2 is uninstalled or SDL3.dll is not moved with it, it breaks. 
-currently working on this dependency issue.
-- cp build/ghost.exe /c/Users/YOURUSERNAME/Desktop  # copies ghost to your desktop.
-- cp external/bin/SDL3.dll /c/Users/YOURUSERNAME/Desktop  # copies the library to your desktop.
-- you can now move ghost.exe wherever you want! just make sure to put SDL3.dll in the same folder. i'm working on a way to get around this dependency, but for now, keep them together so ghost doesn't get lonely
-
-OPTIONAL: uninstall everything else.
-- go to your uninstaller ("Installed Apps" on windows 11)
-- uninstall MSYS2, which will also uninstall all the other stuff you just installed... including ghost, if you haven't moved it to your desktop yet! use defaults for the uninstaller.
+run the following command to start the isntaller (you may have to run it twice)
+. bootstrap.sh

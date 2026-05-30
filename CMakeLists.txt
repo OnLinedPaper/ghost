@@ -5,7 +5,7 @@
 # - https://www.studyplan.dev/sdl3/sdl3-cmake
 
 # rebuild build dir and set prefix:
-# rm -rf build/ && cmake -DCMAKE_PREFIX_PATH=./external/lib/cmake/SDL3/ -B build
+# rm -rf build/ && cmake -B build
 
 # per tutorial recommendations, i'm adding a note why i picked this version.
 # it's literally just because this was the version installed on my linux
@@ -34,11 +34,13 @@ set(
   "."
 )
 
-#TODO: check this later -> doesn't seem important...
-#set(SDL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake/SDL3/)
+# show cmake where SDL is installed
+SET(SDL3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake/SDL3/)
+SET(SDL3_image_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/lib/cmake/SDL3_image)
 
 # get sdl
 find_package(SDL3 REQUIRED)
+find_package(SDL3_image REQUIRED)
 
 add_compile_options(-Wall -Wextra -Wpedantic -O0 -g)
 
@@ -76,6 +78,7 @@ endif()
 # top-level project
 target_link_libraries(ghost PRIVATE engine)
 target_link_libraries(ghost PRIVATE window)
+target_link_libraries(ghost PRIVATE image)
 
 # -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 # main engine loop
@@ -112,12 +115,28 @@ target_sources(window
       include/window.h
 )
 
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# images
+add_library(image)
+target_sources(image
+  PRIVATE
+    src/image.cpp
+
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS
+      include
+    FILES
+      include/image.h
+)
+
 #---- external libs -----------------------------------------------------------
 
 # -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 # include SDL libs for the subcomponents which need them
 target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
 target_include_directories(window PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
+target_include_directories( image PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
 
 # -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 # link SDL at the top level to ghost as a whole
@@ -125,12 +144,18 @@ target_link_libraries(ghost PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib)
 if (WIN32)
   target_link_libraries(ghost PRIVATE -L${CMAKE_CURRENT_SOURCE_DIR}/external/lib/SDL3main)
 endif()
+
 find_library(SDL3
   NAMES sdl3
   HINTS "./external/lib"
 )
 target_link_libraries(ghost PRIVATE SDL3)
 
+find_library(SDL3_image
+  NAMES sdl3_image
+  HINTS "./external/lib"
+)
+target_link_libraries(ghost PRIVATE SDL3_image)
 
 
 # -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
