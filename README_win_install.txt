@@ -14,5 +14,5 @@ in the terminal, run the following command to download the installer:
 TODO: update this after merging to main
 wget https://raw.githubusercontent.com/OnLinedPaper/ghost/refs/heads/window_mechanics/bootstrap.sh
 
-run the following command to start the isntaller (you may have to run it twice)
+run the following command to start the installer (you may have to run it twice)
 . bootstrap.sh
