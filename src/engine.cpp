@@ -25,6 +25,12 @@ int engine::play() {
     , SDL_EVENT_WINDOW_FOCUS_LOST
   };
 
+  std::list<SDL_EventType> MOUSE_EVENTS = {
+      SDL_EVENT_MOUSE_MOTION
+    , SDL_EVENT_MOUSE_BUTTON_DOWN
+    , SDL_EVENT_MOUSE_BUTTON_UP
+  };
+
   window win(400, 400);
   while(!quit) {
     //handle SDL events
@@ -39,14 +45,27 @@ int engine::play() {
       }
 */  
       //pass window events to the appropriate window
-      //TODO: mouse events as well for click and drag
-      else if(std::find(
-          WINDOW_EVENTS.begin()
-        , WINDOW_EVENTS.end()
-        , e.type
-      ) != WINDOW_EVENTS.end()) {
+      if(
+        std::find(
+            WINDOW_EVENTS.begin()
+          , WINDOW_EVENTS.end()
+          , e.type
+        ) != WINDOW_EVENTS.end()
+      ) {
         //TODO: multi-window
-        win.event(e);
+        win.event_w(e);
+      }
+
+      //pass mouse events to the appropriate window
+      if(
+        std::find(
+            MOUSE_EVENTS.begin()
+          , MOUSE_EVENTS.end()
+          , e.type
+        ) != MOUSE_EVENTS.end()
+      ) { 
+        //TODO: multi-window
+        win.event_m(e);
       }
     }
     //handle key events
@@ -56,15 +75,18 @@ int engine::play() {
     win.update();
     win.draw();
 
+    //TODO: check all windows
+    if(!win.is_active()) { quit = true; }
+
     //TODO: timescale from qdbp to keep clock consistent
     SDL_Delay(50);
   }
 
   SDL_Quit();
 
-  std::cout << "engine ran alright! (press any key and enter to terminate)" << std::endl;
-  char wait;
-  std::cin >> wait;
+  //std::cout << "engine ran alright! (press any key and enter to terminate)" << std::endl;
+  //char wait;
+  //std::cin >> wait;
 
   return 0;
 }
