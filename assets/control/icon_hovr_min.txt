@@ -1,6 +1,0 @@
-./assets/icon/icon_hovr_min.png
-icon_hovr_min
-32
-32
-1
-0

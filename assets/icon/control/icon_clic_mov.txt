@@ -1,0 +1,6 @@
+icon_clic_mov.png
+icon_clic_mov
+32
+32
+1
+0

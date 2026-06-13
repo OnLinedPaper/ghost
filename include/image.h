@@ -30,7 +30,7 @@ renderer!
 class image {
 public:
   // control file path and renderer to be rendered to
-  image(const std::string, SDL_Renderer *);
+  image(const std::string, const std::string, SDL_Renderer *);
   image(const image &) = delete;
   image &operator=(const image &) = delete;
 

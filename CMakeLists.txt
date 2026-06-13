@@ -78,7 +78,9 @@ endif()
 # top-level project
 target_link_libraries(ghost PRIVATE engine)
 target_link_libraries(ghost PRIVATE window)
-target_link_libraries(ghost PRIVATE image)
+target_link_libraries(ghost PRIVATE  image)
+target_link_libraries(ghost PRIVATE script)
+target_link_libraries(ghost PRIVATE   time)
 
 # -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 # main engine loop
@@ -128,6 +130,36 @@ target_sources(image
       include
     FILES
       include/image.h
+)
+
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# animation scripts
+add_library(script)
+target_sources(script
+  PRIVATE
+    src/script.cpp
+
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS
+      include
+    FILES
+      include/script.h
+)
+
+# -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+# timekeeping
+add_library(time)
+target_sources(time
+  PRIVATE
+    src/timekeep.cpp
+  
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS
+      include
+    FILES
+      include/timekeep.h
 )
 
 #---- external libs -----------------------------------------------------------

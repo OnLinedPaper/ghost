@@ -3,7 +3,7 @@
 #include <SDL3_Image/SDL_Image.h>
 
 //TODO: failure reporting
-image::image(const std::string c_file, SDL_Renderer *r) :
+image::image(const std::string dir, const std::string pngname, SDL_Renderer *r) :
     t(nullptr)
   , s(nullptr)
   , frames(0)
@@ -14,11 +14,11 @@ image::image(const std::string c_file, SDL_Renderer *r) :
   , loaded(false)
 {
   // open the file and get the data
-  std::ifstream f(c_file, std::ios::in);
+  std::ifstream f("./assets/" + dir + "/control/" + pngname + ".txt", std::ios::in);
   if(!f) { return; }
 
-  std::string filepath = "";
-  f >> filepath;
+  std::string filename = "";
+  f >> filename;
   f >> name;
   f >> width;
   f >> height;
@@ -28,10 +28,10 @@ image::image(const std::string c_file, SDL_Renderer *r) :
   //TODO: validate inputs later
 
   //TODO: check for bad image and load "missing texture" as failsafe
-  t = IMG_LoadTexture(r, filepath.c_str());
+  t = IMG_LoadTexture(r, ("./assets/" + dir + "/png/" + filename).c_str());
   if(t == nullptr) { return; }
 
-  s = IMG_Load(filepath.c_str());
+  s = IMG_Load(("./assets/" + dir + "/png/" + filename).c_str());
 
   loaded = true;
 }

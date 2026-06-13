@@ -1,0 +1,6 @@
+icon_clic_min.png
+icon_clic_min
+32
+32
+1
+0

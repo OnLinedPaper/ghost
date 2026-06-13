@@ -1,0 +1,6 @@
+icon_idle_min.png
+icon_idle_min
+32
+32
+1
+0

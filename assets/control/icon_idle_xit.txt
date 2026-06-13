@@ -1,6 +1,0 @@
-./assets/icon/icon_idle_xit.png
-icon_idle_xit
-32
-32
-1
-0

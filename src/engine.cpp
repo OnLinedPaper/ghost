@@ -1,5 +1,6 @@
 #include "engine.h"
 #include "window.h"
+#include "timekeep.h"
 #include <string>
 #include <iostream>
 #include <SDL3/SDL.h>
@@ -31,7 +32,10 @@ int engine::play() {
     , SDL_EVENT_MOUSE_BUTTON_UP
   };
 
+  time::get();
+
   window win(400, 400);
+  win.add_ghost("them");
   while(!quit) {
     //handle SDL events
     while(SDL_PollEvent(&e)) {
@@ -79,7 +83,8 @@ int engine::play() {
     if(!win.is_active()) { quit = true; }
 
     //TODO: timescale from qdbp to keep clock consistent
-    SDL_Delay(50);
+    SDL_Delay(time::get().get_wait());
+    time::get().update();
   }
 
   SDL_Quit();

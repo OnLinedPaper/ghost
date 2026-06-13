@@ -17,3 +17,6 @@ Session.vim
 # installer
 .bootstrap.skipwelcome
 .ghost_installer.log
+
+# all ghost files in assets
+assets/*

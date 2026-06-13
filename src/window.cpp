@@ -1,6 +1,7 @@
 #include "window.h"
 #include <utility>
 #include <vector>
+#include <filesystem>
 
 //---- constructors and destructors -------------------------------------------
 //  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
@@ -10,15 +11,18 @@ window::window(int x, int y) :
   , c_g(0x80)
   , c_b(0xCC)
   , c_a(0x00)
-  , mouse_x(0.0)
-  , mouse_y(0.0)
-  , mouse_down(false)
-  , mouse_pulse(false)
-  , q_min(false)
-  , q_mov(false)
-  , q_xit(false)
-  , q_mov_last_x(0)
-  , q_mov_last_y(0)
+  , win_focused(false)
+  , win_mouse_in_boundary(false)
+  , id(-1)
+  , r(nullptr)
+  , w(nullptr)
+  , s(nullptr)
+  , w_shape(nullptr)
+  , mouse_x(0.0), mouse_y(0.0)
+  , mouse_down(false), mouse_pulse(false)
+  , h_min(false), h_mov(false), h_xit(false)
+  , q_min(false), q_mov(false), q_xit(false)
+  , q_mov_last_x(0), q_mov_last_y(0)
 {
   //TODO: error handling for initializer
   SDL_CreateWindowAndRenderer("ghost", x, y, SDL_WINDOW_TRANSPARENT, &w, &r);
@@ -44,11 +48,10 @@ window::window(int x, int y) :
   asset_names.push_back("icon_clic_xit");
 
   for(std::string name : asset_names) {
-    std::string path = "./assets/control/" + name + ".txt";
     img_assets.emplace(
         std::piecewise_construct
       , std::forward_as_tuple(name)
-      , std::forward_as_tuple(path, r)
+      , std::forward_as_tuple("icon", name, r)
     );
   }
 
@@ -66,11 +69,39 @@ window::window(int x, int y) :
   i_min_y = offset; 
 
   active = true;
+
+  //compilation of every shape the window is or can display - used to shape
+  //the window and let mouse clicks through the transparent parts
+  //TODO: error handling, and this, more intelligently
+  w_shape = SDL_CreateSurface(x, y, SDL_PIXELFORMAT_UNKNOWN);
+  SDL_FillSurfaceRect(w_shape, nullptr, SDL_MapSurfaceRGBA(w_shape, 0, 0, 0, 0));
+
+  SDL_Rect dst_r;
+  SDL_zero(dst_r);
+  dst_r.w = icon_size;
+  dst_r.h = icon_size;
+
+  dst_r.x = i_xit_x;
+  dst_r.y = i_xit_y;
+  SDL_BlitSurface(img_assets.at("icon_clic_xit").get_surface(), NULL, w_shape, &dst_r); 
+
+  dst_r.x = i_mov_x;
+  dst_r.y = i_mov_y;
+  SDL_BlitSurface(img_assets.at("icon_clic_mov").get_surface(), NULL, w_shape, &dst_r); 
+
+
+  dst_r.x = i_min_x;
+  dst_r.y = i_min_y;
+  SDL_BlitSurface(img_assets.at("icon_clic_min").get_surface(), NULL, w_shape, &dst_r); 
+
+  SDL_SetWindowShape(this->w, w_shape);
 }
 
 //  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
 window::~window() {
   img_assets.clear();
+  img_ghosts.clear();
+  if(w_shape != nullptr) { SDL_DestroySurface(w_shape); w_shape = nullptr; }
   if(s != nullptr) { SDL_DestroySurface(s);  s = nullptr; }
   if(r != nullptr) { SDL_DestroyRenderer(r); r = nullptr; }
   if(w != nullptr) { SDL_DestroyWindow(w);   w = nullptr; }
@@ -83,6 +114,73 @@ window::~window() {
 // immediately wipe it all in preparation for next rendering cycle
 void window::draw() {
   if(!active) { return; }
+
+  int w_w, w_h = 0;
+  SDL_GetWindowSize(this->w, &w_w, &w_h);
+
+  // draw the ghosts
+  std::string iname = "";
+  for(const script &s : scr_ghosts) {
+    //get the name of the image to be drawn this frame
+    iname = s.get_iname();
+
+    //get its data and draw it
+    blit(iname, 0, 0); 
+  }
+
+
+  // draw the icons (so this last so they're always on top)
+  // first, check if the mouse is interacting with any icons
+  int  top_offset = 4;
+  int side_offset = 4;
+  int icon_dims = 32; //TODO: grab this intelligently
+  int icon_side_offset = icon_dims + side_offset;
+ 
+  std::string min = "";
+  std::string mov = "";
+  std::string xit = "";
+
+  // draw the window icons - this comes last, to make sure they're on top
+  if(win_focused || win_mouse_in_boundary) {
+
+    //---- decide what "min" icon to draw --------------
+    if(h_min) {
+      //hovering over the icon!
+      if(mouse_down && q_min) { min = "icon_clic_min"; }
+      else {                    min = "icon_hovr_min"; }
+    }
+    else {
+      if(q_min) {               min = "icon_hovr_min"; }
+      else {                    min = "icon_idle_min"; } 
+    }
+    //---- decide what "mov" icon to draw --------------
+    if(h_mov) {
+      //hovering over the icon!
+      if(mouse_down && q_mov) { mov = "icon_clic_mov"; }
+      else {                    mov = "icon_hovr_mov"; }
+    }
+    else {
+      if(q_mov) {               mov = "icon_hovr_mov"; }
+      else {                    mov = "icon_idle_mov"; }
+    }
+    //---- decide what "xit" icon to draw --------------
+    if(h_xit) {
+      //hovering over the icon!
+      if(mouse_down && q_xit) { xit = "icon_clic_xit"; }
+      else {                    xit = "icon_hovr_xit"; }
+    }
+    else {
+      if(q_xit) {               xit = "icon_hovr_xit"; }
+      else {                    xit = "icon_idle_xit"; }
+    }
+  }
+
+
+
+  blit(min, w_w - icon_side_offset * 3, top_offset, true);
+  blit(mov, w_w - icon_side_offset * 2, top_offset, true);
+  blit(xit, w_w - icon_side_offset * 1, top_offset, true);
+
   SDL_UpdateWindowSurface(w);
   //SDL_RenderPresent(r);
 
@@ -96,14 +194,21 @@ void window::draw() {
 // blit one image to the window, by name
 // ("internal" is for things like window icons and menus)
 // NOT hardware accelerated, but preserves window transparency
-void window::blit(const std::string name, int x, int y, bool internal=false) {
+void window::blit(const std::string name, int x, int y, bool internal) {
   if(!active) { return; }
   SDL_Surface *s = nullptr;
 
+  std::unordered_map<std::string, image> *m = nullptr;
   if(internal && img_assets.find(name) != img_assets.end()) {
-    s = img_assets.at(name).get_surface();
+    m = &img_assets;
   }
-  else { /*TODO*/ }
+  else if(!internal && img_ghosts.find(name) != img_ghosts.end()) {
+    m = &img_ghosts;
+  }
+
+  if(m == nullptr) { return; /*TODO: error reporting, called a bad image*/ }
+
+  s = (*m).at(name).get_surface();
 
   if(s == nullptr) { return; /*TODO: error reporting, called a bad image*/ }
 
@@ -111,14 +216,44 @@ void window::blit(const std::string name, int x, int y, bool internal=false) {
   SDL_zero(dst_r);
   dst_r.x = x;
   dst_r.y = y;
-  dst_r.w = img_assets.at(name).get_w();//TODO: get window dims
-  dst_r.h = img_assets.at(name).get_h(); 
+  dst_r.w = (*m).at(name).get_w();//TODO: get window dims
+  dst_r.h = (*m).at(name).get_h(); 
 
   SDL_BlitSurface(s, NULL, this->s, &dst_r);
 }
 
 
 //---- window logic and event handling ----------------------------------------
+//  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
+// add an animation pack to the screen
+void window::add_ghost(const std::string dir) {
+  //this segment, when given a name, reads a folder in ./assets and loads its
+  //contents. specfically, it loads the control files, the images, and the
+  //scripts.
+
+  //first, load the images:
+  std::string path = "./assets/" + dir + "/control";
+  std::string filename = "";
+  //get each control file's name, and load the associated image
+  //TODO: maybe some sort of checking to not read .swp files?
+  for(const auto &c_fname : std::filesystem::directory_iterator(path)) {
+    filename = c_fname.path().stem().string();
+    img_ghosts.emplace(
+        std::piecewise_construct
+      , std::forward_as_tuple(filename)
+      , std::forward_as_tuple(dir, filename, r)
+    );
+  }
+
+  path = "./assets/" + dir + "/script";
+  filename = "";
+  //next, load the scripts:
+  for(const auto &s_fname : std::filesystem::directory_iterator(path)) {
+    filename = s_fname.path().stem().string();
+    scr_ghosts.emplace_back(dir, filename);
+  }
+  
+}
 //  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
 // handle window events.
 void window::event_w(SDL_Event &e) {
@@ -188,22 +323,11 @@ void window::update() {
   }
 
 
-  // now, check if the mouse is interacting with any icons
-  int w_w, w_h = 0;
-  SDL_GetWindowSize(this->w, &w_w, &w_h);
-  int  top_offset = 4;
-  int side_offset = 4;
-  int icon_dims = 32; //TODO: grab this intelligently
-  int icon_side_offset = icon_dims + side_offset;
-  
-  std::string min = "";
-  std::string mov = "";
-  std::string xit = "";
-
+ 
   //hovering over icon
-  bool h_min = false;
-  bool h_mov = false;
-  bool h_xit = false;
+  h_min = false;
+  h_mov = false;
+  h_xit = false;
 
   //is the mouse hovering over an icon? check min, mov, xit
   if(
@@ -262,50 +386,6 @@ void window::update() {
   }
 
 
-
-  // draw the window icons - this comes last, to make sure they're on top
-  if(!win_focused && !win_mouse_in_boundary) {
-    //not focused, mouse isn't here, don't draw any icons
-    return;
-  }
-
-  //---- decide what "min" icon to draw --------------
-  if(h_min) {
-    //hovering over the icon!
-    if(mouse_down && q_min) { min = "icon_clic_min"; }
-    else {                    min = "icon_hovr_min"; }
-  }
-  else {
-    if(q_min) {               min = "icon_hovr_min"; }
-    else {                    min = "icon_idle_min"; } 
-  }
-  //---- decide what "mov" icon to draw --------------
-  if(h_mov) {
-    //hovering over the icon!
-    if(mouse_down && q_mov) { mov = "icon_clic_mov"; }
-    else {                    mov = "icon_hovr_mov"; }
-  }
-  else {
-    if(q_mov) {               mov = "icon_hovr_mov"; }
-    else {                    mov = "icon_idle_mov"; }
-  }
-  //---- decide what "xit" icon to draw --------------
-  if(h_xit) {
-    //hovering over the icon!
-    if(mouse_down && q_xit) { xit = "icon_clic_xit"; }
-    else {                    xit = "icon_hovr_xit"; }
-  }
-  else {
-    if(q_xit) {               xit = "icon_hovr_xit"; }
-    else {                    xit = "icon_idle_xit"; }
-  }
-
-
-
-  blit(min, w_w - icon_side_offset * 3, top_offset, true);
-  blit(mov, w_w - icon_side_offset * 2, top_offset, true);
-  blit(xit, w_w - icon_side_offset * 1, top_offset, true);
-
 }
 
 
@@ -319,6 +399,8 @@ void window::update() {
 void window::die() {
   active = false;
   img_assets.clear();
+  img_ghosts.clear();
+  if(w_shape != nullptr) { SDL_DestroySurface(w_shape); w_shape = nullptr; }
   if(s != nullptr) { SDL_DestroySurface(s);  s = nullptr; }
   if(r != nullptr) { SDL_DestroyRenderer(r); r = nullptr; }
   if(w != nullptr) { SDL_DestroyWindow(w);   w = nullptr; }

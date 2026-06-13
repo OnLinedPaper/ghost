@@ -1,0 +1,6 @@
+icon_hovr_mov.png
+icon_hovr_mov
+32
+32
+1
+0

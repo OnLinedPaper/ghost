@@ -14,7 +14,9 @@
 #include <SDL3/SDL.h>
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include "image.h"
+#include "script.h"
 
 class window {
 
@@ -25,8 +27,10 @@ public:
   int get_id() const { return id; }
   bool is_active() { return active; }
 
+  void add_ghost(const std::string);
+
   void render(const std::string, int, int, bool); /*DEPRECATED*/
-  void blit(const std::string, int, int, bool);
+  void blit(const std::string, int, int, bool=false);
   void draw();
 
   void event_w(SDL_Event &);
@@ -41,6 +45,7 @@ private:
   SDL_Renderer *r;
   SDL_Window *w;
   SDL_Surface *s;
+  SDL_Surface *w_shape;
 
   // cached window and button positions. TODO: this, more intelligently
   int w_w, w_h; // window width and height
@@ -51,10 +56,13 @@ private:
 
   float mouse_x, mouse_y;
   bool mouse_down, mouse_pulse;
+  bool h_min, h_mov, h_xit;
   bool q_min, q_mov, q_xit;
   float q_mov_last_x, q_mov_last_y;
 
   std::unordered_map<std::string, image> img_assets; //icons, menus, etc
+  std::unordered_map<std::string, image> img_ghosts; //characters and such
+  std::vector<script> scr_ghosts; //characters and such
 
   void die();
   window() = delete;
