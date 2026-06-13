@@ -11,8 +11,7 @@ with it.
 - launch "MSYS2 UCRT64" terminal, if it doesn't open automatically. you may want to pin this to the taskbar, it will close and reopen a few times!
 
 in the terminal, run the following command to download the installer:
-TODO: update this after merging to main
-wget https://raw.githubusercontent.com/OnLinedPaper/ghost/refs/heads/window_mechanics/bootstrap.sh
+wget https://raw.githubusercontent.com/OnLinedPaper/ghost/refs/heads/main/bootstrap.sh
 
 run the following command to start the installer (you may have to run it twice)
 . bootstrap.sh
