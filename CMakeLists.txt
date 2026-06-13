@@ -8,9 +8,9 @@
 # rm -rf build/ && cmake -B build
 
 # per tutorial recommendations, i'm adding a note why i picked this version.
-# it's literally just because this was the version installed on my linux
-# machine, and i wanted parity across systems.
-cmake_minimum_required(VERSION 3.22.1)
+# this is the minimum version that has FILE_SET, which the tutorial
+# included and i haven't learned how to work around yet.
+cmake_minimum_required(VERSION 3.23.1)
 
 # high-level name for project
 project(

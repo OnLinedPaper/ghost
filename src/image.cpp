@@ -1,6 +1,6 @@
 #include "image.h"
 #include <fstream>
-#include <SDL3_Image/SDL_Image.h>
+#include <SDL3_image/SDL_image.h>
 
 //TODO: failure reporting
 image::image(const std::string dir, const std::string pngname, SDL_Renderer *r) :
