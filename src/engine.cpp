@@ -35,7 +35,7 @@ int engine::play() {
   time::get();
 
   window win(400, 400);
-  win.add_ghost("them");
+  win.add_ghost("example_ghost");
   while(!quit) {
     //handle SDL events
     while(SDL_PollEvent(&e)) {

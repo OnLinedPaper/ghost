@@ -1,0 +1,15 @@
+FRAMES 168
+000 title01
+012 title02
+024 title03
+036 title04
+048 title05
+060 title06
+072 title07
+084 title08
+096 title09
+108 title10
+120 title11
+132 title12
+144 title13
+156 title14
