@@ -5,7 +5,7 @@
 script::script(const std::string dir, const std::string scriptname) :
     total_frames(0)
 {
-  std::ifstream f("./assets/" + dir + "/script/" + scriptname + ".txt", std::ios::in);
+  std::ifstream f("./assets/ghosts/" + dir + "/script/" + scriptname + ".txt", std::ios::in);
   if(!f) { return; }
 
   int temp_i = 0;

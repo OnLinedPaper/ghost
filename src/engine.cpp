@@ -6,6 +6,7 @@
 #include <SDL3/SDL.h>
 #include <list>
 #include <algorithm>
+#include <filesystem>
 
 int engine::play() {
   if(SDL_Init(SDL_INIT_VIDEO) == false) { 
@@ -34,20 +35,18 @@ int engine::play() {
 
   time::get();
 
-  window win(400, 400);
-  win.add_ghost("example_ghost");
+  //load all ghosts in ./assets/ghosts
+  std::list<window> windows;
+  for(const auto &c_dname : std::filesystem::directory_iterator("./assets/ghosts/")) {
+    windows.emplace_back(400, 400);
+    windows.back().add_ghost(c_dname.path().stem());
+  }
+
   while(!quit) {
     //handle SDL events
     while(SDL_PollEvent(&e)) {
       if(e.type == SDL_EVENT_QUIT) { quit = true; }
-/*
-      else if(e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-        green = 0;
-      }
-      else if(e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-        green = 0xAA;
-      }
-*/  
+
       //pass window events to the appropriate window
       if(
         std::find(
@@ -55,10 +54,8 @@ int engine::play() {
           , WINDOW_EVENTS.end()
           , e.type
         ) != WINDOW_EVENTS.end()
-      ) {
-        //TODO: multi-window
-        win.event_w(e);
-      }
+      ) 
+      { for(window &w : windows) { w.event_w(e); } }
 
       //pass mouse events to the appropriate window
       if(
@@ -67,22 +64,23 @@ int engine::play() {
           , MOUSE_EVENTS.end()
           , e.type
         ) != MOUSE_EVENTS.end()
-      ) { 
-        //TODO: multi-window
-        win.event_m(e);
-      }
+      ) 
+      { for(window &w : windows) { w.event_m(e); } }
     }
     //handle key events
     SDL_PumpEvents();
     if(keystate[SDL_SCANCODE_ESCAPE]) { quit = true; }
 
-    win.update();
-    win.draw();
+    //update all windows, and if NONE of them are active, quit
+    bool all_windows_inactive = true;
+    for(window &w : windows) { 
+      w.update(); 
+      w.draw(); 
+      if(w.is_active()) { all_windows_inactive = false; }
+    }; 
+    if(all_windows_inactive) { quit = true; }
 
-    //TODO: check all windows
-    if(!win.is_active()) { quit = true; }
-
-    //TODO: timescale from qdbp to keep clock consistent
+    //scaling delay to ensure consistent anim speed, if not framerate
     SDL_Delay(time::get().get_wait());
     time::get().update();
   }

@@ -232,7 +232,7 @@ void window::add_ghost(const std::string dir) {
   //scripts.
 
   //first, load the images:
-  std::string path = "./assets/" + dir + "/control";
+  std::string path = "./assets/ghosts/" + dir + "/control";
   std::string filename = "";
   //get each control file's name, and load the associated image
   //TODO: maybe some sort of checking to not read .swp files?
@@ -241,11 +241,11 @@ void window::add_ghost(const std::string dir) {
     img_ghosts.emplace(
         std::piecewise_construct
       , std::forward_as_tuple(filename)
-      , std::forward_as_tuple(dir, filename, r)
+      , std::forward_as_tuple("ghosts/" + dir, filename, r)
     );
   }
 
-  path = "./assets/" + dir + "/script";
+  path = "./assets/ghosts/" + dir + "/script";
   filename = "";
   //next, load the scripts:
   for(const auto &s_fname : std::filesystem::directory_iterator(path)) {
