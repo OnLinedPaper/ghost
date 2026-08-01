@@ -39,7 +39,7 @@ int engine::play() {
   std::list<window> windows;
   for(const auto &c_dname : std::filesystem::directory_iterator("./assets/ghosts/")) {
     windows.emplace_back(400, 400);
-    windows.back().add_ghost(c_dname.path().stem());
+    windows.back().add_ghost(c_dname.path().stem().string());
   }
 
   while(!quit) {
